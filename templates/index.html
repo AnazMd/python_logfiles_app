@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log Summary</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='index.css') }}"
+    />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  </head>
+  <body>
+    <div class="content-wrapper">
+      <h1>Log Summary</h1>
+      <form action="/" method="post">
+        <div class="form-group">
+          <label for="lines">Select the number of lines:</label>
+          <select name="lines" id="lines">
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+          </select>
+        </div>
+        <button type="submit">Generate Summary</button>
+      </form>
+      {% if summary %}
+      <table>
+        <tbody>
+          {% for log_file, counts in summary.items() %}
+
+          <tr>
+            <td>{{ log_file }}</td>
+            <td>
+              <h4>
+                <span style="color: #5cb85c">pass: {{counts['pass']}}</span>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <span style="color: #d9534f">fail: {{counts['fail']}}</span>
+              </h4>
+            </td>
+            <td>
+              <h4>
+                <span style="color: #5bc0de">
+                  untested: {{counts['untested']}}</span
+                >
+              </h4>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
+          <tr>
+            <td><strong>Total</strong></td>
+            <td>
+              <span style="color: #5cb85c; font-weight: 700"
+                >pass: {{totals['total_passed']}}</span
+              >
+            </td>
+            <td>
+              <span style="color: #d9534f; font-weight: 700"
+                >fail: {{ totals['total_failed']}}</span
+              >
+            </td>
+            <td>
+              <span style="color: #5bc0de; font-weight: 700">
+                untested: {{ totals['total_untested'] }}</span
+              >
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+      {% endif %}
+    </div>
+
+    {% if totals %}
+    <div id="summary-graph"></div>
+
+    <script>
+      var data = [{
+          x: ['Passed', 'Failed', 'Untested'],
+          y: [{{ totals['total_passed'] }}, {{ totals['total_failed'] }}, {{ totals['total_untested'] }}],
+          type: 'bar',
+          marker: {
+            color: ['green', 'red', 'gray']
+        }
+      }];
+
+      var layout = {
+          title: 'Test Case Summary',
+          xaxis: {title: 'Status'},
+          yaxis: {title: 'Count'}
+      };
+
+      Plotly.newPlot('summary-graph', data, layout);
+    </script>
+    {% endif %}
+  </body>
+</html>
